@@ -1,0 +1,50 @@
+body {
+background: white;
+  }
+  
+  h1 {
+    font-size: 25px;
+  }
+  
+  h4 {
+    font-size: 25px;
+  }
+  
+
+  .head {
+    height: 200px;;
+  }
+ 
+
+  .head_center {
+    height: 200px;
+    text-align: center;
+  }
+  
+  .head_title { 
+    margin: 0;
+    color: black;
+    background-color: rgb(247, 208, 185);
+    text-align: center;
+  }
+  
+  
+  @media (max-width: 600px) {
+    .navbar li {
+      padding: 30px;
+    }
+  
+    .post {
+      margin-right: 40px;
+      margin-left: 40px;
+    }
+  
+    .navbar ul {
+      visibility: hidden;
+    }
+  
+    #nav-select {
+      visibility: visible;
+    }
+  }
+  
