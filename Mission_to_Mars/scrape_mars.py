@@ -13,48 +13,50 @@ from flask import Flask, render_template, redirect
 from flask_pymongo import PyMongo
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-import time
 
-
-
-# In[2]:
 
 def scrape():
     executable_path = {'executable_path': ChromeDriverManager().install()}
     browser = Browser('chrome', **executable_path, headless=False)
-    mars_dict ={}
+
 
 # In[3]:
 
 
     url = 'https://redplanetscience.com/'
     browser.visit(url)
-    html=browser.html
-    soup=bs(html, 'html.parser')
 
 
 # In[4]:
 
 
-    title = soup.find_all('div', class_='content_title')[0].text
-    print(title)
+    html=browser.html
+    soup=bs(html, 'html.parser')
 
 
 # In[5]:
+    mars_dict ={}
 
 
-    news = soup.find_all('div', class_='article_teaser_body')[0].text
-    print(news)
+    title = soup.find_all('div', class_='content_title')[0].text
+    #print(title)
 
 
 # In[6]:
+
+
+    news = soup.find_all('div', class_='article_teaser_body')[0].text
+    #print(news)
+
+    mars_dict.update({'Title':title,'News':news})
+# In[7]:
 
 
     img_url = 'https://spaceimages-mars.com'
     browser.visit(img_url)
 
 
-# In[7]:
+# In[8]:
 
 
     html=browser.html
@@ -62,15 +64,15 @@ def scrape():
     relative_img_path = img_soup.find_all('img')[1]['src']
     relative_img_path
 
-
-# In[8]:
+    
+# In[9]:
 
 
     featured_image_url = img_url + '/' + relative_img_path
     featured_image_url
 
-
-# In[9]:
+    mars_dict.update({'featured_image_url': featured_image_url})
+# In[10]:
 
 
     url2 = 'https://galaxyfacts-mars.com'
@@ -79,7 +81,7 @@ def scrape():
     soup2=bs(html, 'html.parser')
 
 
-# In[10]:
+# In[11]:
 
 
     mars_df = pd.read_html(url2)[0]
@@ -87,35 +89,35 @@ def scrape():
     mars_df
 
 
-# In[11]:
+# In[12]:
 
 
     mars_html = mars_df.to_html()
     mars_html
 
-
-# In[12]:
+    mars_dict.update({'mars_facts':mars_html})
+# In[13]:
 
 
     mars_html.replace('\n', '')
     print(mars_html)
 
 
-# In[13]:
+# In[14]:
 
 
     hem_url = 'https://marshemispheres.com/'
     browser.visit(hem_url)
 
 
-# In[14]:
+# In[15]:
 
 
     html = browser.html
     hem_soup = bs(html, 'html.parser')
 
 
-# In[15]:
+# In[16]:
 
 
     hems = hem_soup.find('div', class_='collapsible results')
@@ -127,37 +129,35 @@ def scrape():
 # In[17]:
 
 
+    hem_url="https://marshemispheres.com/"
+    browser.visit(hem_url)
+    html = browser.html
+    hem_soup = bs(html, 'html.parser')
+
     hem_urls = []
+    hemispheres = hem_soup.find_all('div', class_='item')
 
-    for x in items:
-
-        h_title = x.find('div', class_= 'description').find('a', class_='itemLink product-item').h3.text
-        hem_img_url = hem_url + x.find('a', class_ = 'itemLink product-item')['href']
-        browser.visit(hem_img_url)
-        html_= browser.html
-        hem_img_soup = bs(html, 'html.parser')
-        img_link= hem_img_soup.find('div', class_ = 'page-background')
-        img_url= img_link
-    
-    
-        hem_urls.append({'Title':h_title, 'Img_URL':img_url})
-    
+    for hem in hemispheres:
+        name = hem.find('h3').text[:-9]
+        hem_link = hem.find('a')['href']
+        url = hem_url + hem_link
+        browser.visit(url)
+        html = browser.html
+        hem_soup = bs(html, 'html.parser')
+        h_img = hem_soup.find('img',class_='wide-image')
+        h_img_link = h_img['src']
+        hem_dict = {'Title': name ,'image_url':hem_url + h_img_link}
+        hem_urls.append(hem_dict)
     print(hem_urls)
 
-
-    mars_dict = { 'news_title': title,'news':news, 'featured_img_url':featured_image_url,
-    'mars_table':str(mars_html), 'hempispheres':hem_urls}
-
-
-
-# In[ ]:
+    mars_dict.update({'hemispheres': hem_urls})
+# In[18]:
 
 
     browser.quit()
 
 
 # In[ ]:
-
 
     return mars_dict
 
